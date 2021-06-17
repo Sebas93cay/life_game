@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+"""
+This module creates a windows to simulate
+CONWAY'S GAME OF LIFE
+"""
 
 from traceback import print_tb
 import PySimpleGUI as sg
@@ -6,8 +10,8 @@ import time
 from PySimpleGUI.PySimpleGUI import Multiline
 
 
-def InitMat():
-    return [[0 for i in range(30)] for j in range(30)]
+def InitMat(x, y):
+    return [[0 for i in range(x)] for j in range(y)]
 
 
 def printMat(TextArea, Mat):
@@ -28,30 +32,24 @@ def cellsBorn(mat, cells):
 
 
 def nextStep(Mat0, Mat1):
+    y = len(Mat0)
+    x = len(Mat0[0])
     for i, row in enumerate(Mat0):
-        # print("i = {}".format(i))
-        # print(row)
         for j, cell in enumerate(row):
-            # print("LA GRAN i = {}".format(i))
-            # print("EL GRAN j = {}".format(j))
-            # print("CELLL IS "+str(cell))
             count = 0
             if cell == 0:
                 for r_i in range(i-1, i + 2):
                     for c_i in range(j-1, j+2):
-                        # print("r_i = {}".format(r_i))
-                        # print("c_i = {}".format(c_i))
-                        if c_i == 30:
+                        if c_i == x:
                             c_i = 0
-                        if r_i == 30:
+                        if r_i == y:
                             r_i = 0
                         if c_i == -1:
-                            c_i = 29
+                            c_i = x - 1
                         if r_i == -1:
-                            r_i = 29
-                        # print("end")
-                        # print("r_i = {}".format(r_i))
-                        # print("c_i = {}".format(c_i))
+                            r_i = y - 1
+                        # print("r_i= {}".format(r_i))
+                        # print("c_i= {}".format(c_i))
                         count += Mat0[r_i][c_i]
                 if count == 3:
                     Mat1[i][j] = 1
@@ -60,14 +58,14 @@ def nextStep(Mat0, Mat1):
             else:
                 for r_i in range(i-1, i + 2):
                     for c_i in range(j-1, j+2):
-                        if c_i == 30:
+                        if c_i == x:
                             c_i = 0
-                        if r_i == 30:
+                        if r_i == y:
                             r_i = 0
                         if c_i == -1:
-                            c_i = 29
+                            c_i = x - 1
                         if r_i == -1:
-                            r_i = 29
+                            r_i = y - 1
                         count += Mat0[r_i][c_i]
                 count -= 1
                 if count != 2 and count != 3:
@@ -77,9 +75,11 @@ def nextStep(Mat0, Mat1):
 
 
 layout = [[sg.Text("GAME OF LIFE")],
+          [sg.Text('Screen size: '), sg.Input(
+              '35, 45', size=(10, 1), key='-SIZE-'), sg.Button('CLEAR')],
           [sg.Text('alives: '), sg.Input(
               '(10,10),(10,11),(11,11),(11,12),(12,11)', size=(20, 1), key='-INPUT-')],
-          [sg.Button("GO")],
+          [sg.Button("GO"), sg.Button("Stop")],
           [sg.Multiline(key='-ML-'+sg.WRITE_ONLY_KEY,
                         size=(30, 30), font=("Helvetica", 12))],
           [sg.Button("CLOSE"), sg.Text(key='-ITER-', size=(16, 1))]
@@ -88,8 +88,8 @@ layout = [[sg.Text("GAME OF LIFE")],
 # Create the window
 window = sg.Window("GAME OF LIFE", layout, margins=(10, 10), finalize=True)
 
-Mata = InitMat()
-Mate = InitMat()
+Mata = InitMat(30, 30)
+Mate = InitMat(30, 30)
 
 direction = 1
 
@@ -111,11 +111,23 @@ while True:
             cellsBorn(Mata, alives)
             go = True
             printMat(window['-ML-'+sg.WRITE_ONLY_KEY], Mata)
+
         except Exception as e:
             print(e)
-            sg.popup('ALIVE CELLS HAS TO BE TUPLES SEPARATED BY COMMAS')
+            sg.popup('Alive cells has to be tuples separated by commas')
 
-    time.sleep(0.1)
+    if event == "CLEAR":
+        try:
+            y, x = eval('('+values['-SIZE-']+')')
+            window['-ML-'+sg.WRITE_ONLY_KEY].set_size(size=(x, y))
+            Mata = InitMat(x, y)
+            Mate = InitMat(x, y)
+            i = 0
+            go = False
+        except:
+            sg.popup('Write x and y separated by a comma, example: 40,50')
+
+    time.sleep(0.05)
     if go:
         if direction == 1:
             nextStep(Mata, Mate)
