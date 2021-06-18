@@ -11,10 +11,16 @@ from PySimpleGUI.PySimpleGUI import Multiline
 
 
 def InitMat(x, y):
+    """
+    Init a Matrix of x times y ceros
+    """
     return [[0 for i in range(x)] for j in range(y)]
 
 
 def printMat(TextArea, Mat):
+    """
+    print Mat int TextArea
+    """
     text = ""
     for row in Mat:
         for i in row:
@@ -26,12 +32,23 @@ def printMat(TextArea, Mat):
     TextArea.update(text)
 
 
-def cellsBorn(mat, cells):
+def setCells(mat, cells):
+    """
+    set new matrix with cells from the list cells alive
+    """
+    x = len(mat[0])
+    y = len(mat)
+    for r_i, row in enumerate(mat):
+        for c_i, i in enumerate(row):
+            mat[r_i][c_i] = 0
     for cell in cells:
-        mat[cell[0]][cell[1]] = 1
+        mat[cell[0] % x][cell[1] % y] = 1
 
 
 def nextStep(Mat0, Mat1):
+    """
+    saves in Mat1, Mat0's next step in the GAME OF LIFE
+    """
     y = len(Mat0)
     x = len(Mat0[0])
     for i, row in enumerate(Mat0):
@@ -78,8 +95,9 @@ layout = [[sg.Text("GAME OF LIFE")],
           [sg.Text('Screen size: '), sg.Input(
               '35, 45', size=(10, 1), key='-SIZE-'), sg.Button('CLEAR')],
           [sg.Text('alives: '), sg.Input(
-              '(10,10),(10,11),(11,11),(11,12),(12,11)', size=(20, 1), key='-INPUT-')],
-          [sg.Button("GO"), sg.Button("Stop")],
+              '(10,10),(10,11),(11,11),(11,12),(12,11)', size=(20, 1), key='-INPUT-'),
+           sg.Button('SET')],
+          [sg.Button("GO", key='-GO-')],
           [sg.Multiline(key='-ML-'+sg.WRITE_ONLY_KEY,
                         size=(30, 30), font=("Helvetica", 12))],
           [sg.Button("CLOSE"), sg.Text(key='-ITER-', size=(16, 1))]
@@ -102,19 +120,27 @@ while True:
     if event == "CLOSE" or event == sg.WIN_CLOSED:
         break
 
-    if event == "GO":
-        try:
-            alives = eval('['+values['-INPUT-']+']')
-            print(alives)
-            if any([type(i) != tuple for i in alives]):
-                raise Exception("ups")
-            cellsBorn(Mata, alives)
-            go = True
-            printMat(window['-ML-'+sg.WRITE_ONLY_KEY], Mata)
+    if event == "SET":
+        alives = eval('['+values['-INPUT-']+']')
+        if any([type(i) != tuple for i in alives]):
+            raise Exception("ups")
+        setCells(Mata, alives)
+        i = 0
+        go = False
+        direction = 1
+        printMat(window['-ML-'+sg.WRITE_ONLY_KEY], Mata)
 
-        except Exception as e:
-            print(e)
-            sg.popup('Alive cells has to be tuples separated by commas')
+    if event == "-GO-":
+        if go == False:
+            try:
+                go = True
+                window['-GO-'].Update('STOP')
+            except Exception as e:
+                print(e)
+                sg.popup('Alive cells has to be tuples separated by commas')
+        else:
+            window['-GO-'].Update('GO')
+            go = False
 
     if event == "CLEAR":
         try:
@@ -124,6 +150,7 @@ while True:
             Mate = InitMat(x, y)
             i = 0
             go = False
+            window['-ML-'+sg.WRITE_ONLY_KEY].Update("")
         except:
             sg.popup('Write x and y separated by a comma, example: 40,50')
 
