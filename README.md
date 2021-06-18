@@ -18,9 +18,9 @@ Run the executable fame_life.py file
 ```
 ./game_life.py
 ```
-
+<center>
 <img height="500" src="https://github.com/Sebas93cay/life_game/blob/main/images/01.jpeg">
-
+</center>
 
 Set the area size separated by commas.
 Ex: 35, 45
