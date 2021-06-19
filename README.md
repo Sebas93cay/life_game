@@ -18,9 +18,9 @@ Run the executable fame_life.py file
 ```
 ./game_life.py
 ```
-<center>
-    <img height="500" src="https://github.com/Sebas93cay/life_game/blob/main/images/01.jpeg">
-</center>
+<div align="center">
+    <img height="500" src="images/01.jpeg">
+</div>
 
 Set the area size separated by commas.
 Ex: 35, 45
@@ -31,3 +31,4 @@ Ex: (10,10),(10,11),(11,11),(11,12),(12,11)
 Use the button Go/Stop to run or pause the simulation.
 
 Enjoy your cells :)
+
